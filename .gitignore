@@ -1,0 +1,72 @@
+# Python cache / bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+
+# Virtual environment
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Environment variables / secrets
+*.env
+*.env.*
+.envrc
+
+# Build / packaging
+build/
+dist/
+*.spec
+pip-wheel-metadata/
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+*.out
+*.err
+
+# Coverage / test
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Mypy / Pylint / Ruff / Bandit
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.pylint.d/
+
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# Docker
+docker-compose.override.yml
+.docker/
+*.pid
+
+# SQLite / DB files (if local dev only)
+*.db
+*.sqlite3
+
+# FastAPI specific
+# (if you generate OpenAPI schema docs or static builds)
+static/
