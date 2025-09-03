@@ -1496,21 +1496,472 @@ alembic upgrade head
 alembic downgrade -1
 ```
 
-### Production Commands
+### Nginx Configuration Commands
 
 ```bash
-# Production server
-gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
+# Nginx setup for FastAPI
+sudo nano /etc/nginx/sites-available/myapp
 
-# Docker
+# Nginx configuration example:
+# server {
+#     listen 80;
+#     server_name your-domain.com;
+#
+#     location / {
+#         proxy_pass http://127.0.0.1:8000;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#     }
+# }
+
+# Enable site
+sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/
+sudo nginx -t                    # Test configuration
+sudo systemctl reload nginx      # Reload nginx
+sudo systemctl restart nginx     # Restart nginx
+sudo systemctl status nginx      # Check status
+
+# SSL with Let's Encrypt
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
+```
+
+### CI/CD Commands (GitHub Actions)
+
+```bash
+# GitHub Actions workflow file (.github/workflows/test.yml)
+# Basic commands for CI/CD setup:
+
+# Local testing of workflows
+act                              # Run GitHub Actions locally
+act -j test                      # Run specific job
+
+# Branch protection
+git branch --set-upstream-to=origin/main main
+git push --set-upstream origin main
+```
+
+### Package Management Commands
+
+```bash
+# pip-tools (Requirements management)
+pip install pip-tools
+pip-compile requirements.in      # Generate requirements.txt
+pip-compile dev-requirements.in  # Generate dev requirements
+pip-sync requirements.txt        # Sync environment
+
+# pipdeptree (Dependency tree)
+pip install pipdeptree
+pipdeptree                       # Show dependency tree
+pipdeptree --reverse            # Show reverse dependencies
+pipdeptree --json               # JSON output
+
+# pipreqs (Generate requirements from code)
+pip install pipreqs
+pipreqs .                        # Generate requirements.txt from imports
+pipreqs . --force               # Overwrite existing
+
+# pipx (Install Python apps in isolated environments)
+pip install pipx
+pipx install package_name
+pipx list
+pipx uninstall package_name
+```
+
+### Database Tools Commands
+
+```bash
+# pgAdmin (PostgreSQL GUI)
+pip install pgadmin4
+pgadmin4
+
+# MySQL Workbench
+# GUI tool - install from website
+
+# DBeaver (Universal database tool)
+# GUI tool - install from website
+
+# SQLite Browser
+# GUI tool for SQLite
+
+# Database connection testing
+python -c "
+import sqlalchemy
+engine = sqlalchemy.create_engine('your_database_url')
+print('Connection successful!' if engine.connect() else 'Connection failed')
+"
+```
+
+### Process Management Commands
+
+```bash
+# systemd (Linux service management)
+# Create service file: /etc/systemd/system/myapp.service
+sudo systemctl daemon-reload
+sudo systemctl enable myapp.service
+sudo systemctl start myapp.service
+sudo systemctl status myapp.service
+sudo systemctl stop myapp.service
+sudo systemctl restart myapp.service
+
+# Supervisor (Process control system)
+pip install supervisor
+echo_supervisord_conf > supervisord.conf
+supervisord -c supervisord.conf
+supervisorctl status
+supervisorctl start myapp
+supervisorctl stop myapp
+supervisorctl restart myapp
+
+# PM2 (Node.js process manager - can run Python)
+npm install -g pm2
+pm2 start "uvicorn main:app --host 0.0.0.0 --port 8000" --name myapp
+pm2 list
+pm2 restart myapp
+pm2 stop myapp
+pm2 logs myapp
+pm2 monit
+```
+
+### Log Management Commands
+
+```bash
+# journalctl (systemd logs)
+journalctl -u myapp.service      # Service logs
+journalctl -u myapp.service -f   # Follow logs
+journalctl --since "1 hour ago"  # Time-based filtering
+
+# logrotate (Log rotation)
+sudo nano /etc/logrotate.d/myapp
+sudo logrotate -d /etc/logrotate.d/myapp  # Dry run
+sudo logrotate -f /etc/logrotate.d/myapp  # Force rotation
+
+# tail commands for log monitoring
+tail -f app.log                  # Follow log file
+tail -n 100 app.log             # Last 100 lines
+grep "ERROR" app.log | tail -20  # Last 20 errors
+```
+
+### SSL/TLS Certificate Commands
+
+```bash
+# Let's Encrypt with Certbot
+sudo apt install certbot
+sudo certbot certonly --standalone -d your-domain.com
+sudo certbot renew               # Renew certificates
+sudo certbot certificates        # List certificates
+
+# OpenSSL (Self-signed certificates)
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+openssl x509 -in cert.pem -text -noout  # View certificate details
+
+# SSL testing
+openssl s_client -connect your-domain.com:443
+nmap --script ssl-enum-ciphers -p 443 your-domain.com
+```
+
+### Performance Monitoring Commands
+
+```bash
+# htop (System monitoring)
+htop
+
+# iostat (I/O statistics)
+iostat -x 1                      # I/O stats every second
+
+# netstat (Network connections)
+netstat -tuln                    # Show listening ports
+netstat -i                       # Interface statistics
+
+# ss (Socket statistics)
+ss -tuln                         # Show listening sockets
+
+# iftop (Network bandwidth)
+sudo iftop
+
+# vmstat (Virtual memory statistics)
+vmstat 1                         # Every second
+
+# Application performance
+python -m cProfile -o profile.out main.py
+python -c "import pstats; p = pstats.Stats('profile.out'); p.sort_stats('cumulative').print_stats(10)"
+
+# Memory profiling
+pip install memory-profiler
+python -m memory_profiler main.py
+```
+
+### Debugging Commands
+
+```bash
+# Python debugger
+python -m pdb main.py            # Start with debugger
+python -c "import pdb; pdb.set_trace(); your_code_here"
+
+# ipdb (Enhanced debugger)
+pip install ipdb
+python -c "import ipdb; ipdb.set_trace(); your_code_here"
+
+# Remote debugging with debugpy
+pip install debugpy
+python -m debugpy --listen 5678 --wait-for-client main.py
+
+# Profiling with py-spy
+pip install py-spy
+py-spy record -o profile.svg -- python main.py
+py-spy top --pid PID
+```
+
+### Kubernetes Commands (if deploying to K8s)
+
+```bash
+# Basic Kubernetes commands
+kubectl apply -f deployment.yaml
+kubectl get pods
+kubectl get services
+kubectl get deployments
+kubectl describe pod pod-name
+kubectl logs pod-name
+kubectl delete pod pod-name
+
+# Create deployment
+kubectl create deployment myapp --image=myapp:latest
+kubectl expose deployment myapp --type=LoadBalancer --port=80 --target-port=8000
+
+# Scale deployment
+kubectl scale deployment myapp --replicas=3
+
+# Rolling update
+kubectl set image deployment/myapp myapp=myapp:v2
+kubectl rollout status deployment/myapp
+kubectl rollout undo deployment/myapp
+```
+
+### AWS CLI Commands (if using AWS)
+
+```bash
+# Install AWS CLI
+pip install awscli
+
+# Configure AWS
+aws configure
+
+# S3 operations
+aws s3 ls
+aws s3 cp file.txt s3://bucket-name/
+aws s3 sync . s3://bucket-name/
+
+# ECS (Elastic Container Service)
+aws ecs list-clusters
+aws ecs list-services --cluster cluster-name
+aws ecs update-service --cluster cluster-name --service service-name --desired-count 3
+
+# Lambda
+aws lambda list-functions
+aws lambda invoke --function-name my-function output.txt
+```
+
+### Development Workflow Commands
+
+```bash
+# Pre-commit hooks setup
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+
+# Git hooks for quality checks
+# Create .pre-commit-config.yaml:
+# repos:
+#   - repo: https://github.com/psf/black
+#     rev: 22.3.0
+#     hooks:
+#       - id: black
+#   - repo: https://github.com/pycqa/isort
+#     rev: 5.10.1
+#     hooks:
+#       - id: isort
+
+# Makefile commands (create Makefile in project root)
+make install                     # Install dependencies
+make test                        # Run tests
+make lint                        # Run linters
+make format                      # Format code
+make run                         # Run application
+make docker-build               # Build Docker image
+make docker-run                 # Run Docker container
+```
+
+### Complete Development Environment Setup
+
+```bash
+# Complete project setup script
+#!/bin/bash
+
+# Create project structure
+mkdir -p myproject/{app,tests,docs,scripts}
+cd myproject
+
+# Initialize git
+git init
+echo "venv/\n__pycache__/\n*.pyc\n.env\n.pytest_cache/" > .gitignore
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
+
+# Install dependencies
+pip install fastapi uvicorn[standard] python-dotenv
+pip install sqlalchemy alembic psycopg2-binary
+pip install pytest httpx pytest-asyncio
+pip install black isort flake8 mypy
+pip install pre-commit
+
+# Create requirements files
+pip freeze > requirements.txt
+cat > requirements-dev.txt << EOF
+pytest
+httpx
+pytest-asyncio
+black
+isort
+flake8
+mypy
+pre-commit
+EOF
+
+# Initialize pre-commit
+pre-commit install
+
+# Create basic app structure
+cat > app/main.py << EOF
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+EOF
+
+# Create test file
+cat > tests/test_main.py << EOF
+from fastapi.testclient import TestClient
+from app.main import app
+
+client = TestClient(app)
+
+def test_read_root():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello World"}
+EOF
+
+# Create .env example
+cat > .env.example << EOF
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+EOF
+
+# Create Dockerfile
+cat > Dockerfile << EOF
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+EOF
+
+echo "Project setup complete! 🎉"
+echo "Next steps:"
+echo "1. source venv/bin/activate"
+echo "2. uvicorn app.main:app --reload"
+echo "3. Open http://localhost:8000"
+```
+
+---
+
+## 🎯 Ultimate Command Cheatsheet
+
+### Daily Development Workflow
+
+```bash
+# 1. Environment setup
+source venv/bin/activate         # Activate virtual environment
+pip install -r requirements.txt  # Install dependencies
+
+# 2. Run application
+uvicorn main:app --reload        # Development server
+uvicorn main:app --host 0.0.0.0 --port 8000  # Custom host/port
+
+# 3. Database operations
+alembic upgrade head             # Apply migrations
+alembic revision --autogenerate -m "Description"  # Create migration
+
+# 4. Code quality
+black .                          # Format code
+isort .                          # Sort imports
+flake8 .                         # Lint code
+mypy .                          # Type checking
+
+# 5. Testing
+pytest                          # Run all tests
+pytest -v --cov=app            # Verbose with coverage
+
+# 6. Git operations
+git add .
+git commit -m "feat: add new feature"
+git push origin main
+
+# 7. Deployment
 docker build -t myapp .
 docker run -p 8000:8000 myapp
-
-# Docker Compose
-docker-compose up -d
-docker-compose logs -f
-docker-compose down
 ```
+
+### Emergency Troubleshooting
+
+```bash
+# Check if app is running
+curl http://localhost:8000/health
+
+# Check processes
+ps aux | grep uvicorn
+ps aux | grep gunicorn
+
+# Check ports
+netstat -tuln | grep 8000
+ss -tuln | grep 8000
+
+# Check logs
+tail -f app.log
+journalctl -u myapp.service -f
+
+# Database connection test
+python -c "
+from sqlalchemy import create_engine
+engine = create_engine('your_database_url')
+conn = engine.connect()
+print('DB connection OK')
+conn.close()
+"
+
+# Memory usage
+ps aux --sort=-%mem | head
+htop
+
+# Disk usage
+df -h
+du -sh /path/to/app
+
+# Kill processes
+pkill -f uvicorn
+pkill -f gunicorn
+```
+
+**🚀 Now you have EVERY command you'll ever need for FastAPI development, from basic setup to production deployment!**
 
 ---
 
